@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<input type="text">
+{% for i in model %}
+<div class="name">{{ i.materials }}</div>
+{% endfor %}
+
+{% endblock %}
