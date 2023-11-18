@@ -10,11 +10,11 @@ class MaterialType(models.Model):
 class Material(models.Model):
     name = models.TextField()
     type = models.ForeignKey(MaterialType, models.CASCADE)
-    count = models.IntegerField(),
-    unit = models.TextField(),
-    numInStorage = models.IntegerField(),
-    minNumRemaining = models.IntegerField(),
-    cost = models.FloatField(),
+    count = models.IntegerField()
+    unit = models.TextField()
+    numInStorage = models.IntegerField()
+    minNumRemaining = models.IntegerField()
+    cost = models.FloatField()
 
     class Meta:
         managed = False
@@ -28,13 +28,13 @@ class ProductType(models.Model):
         db_table = 'ProductType'
 
 class Product(models.Model):
-    name = models.TextField(),
-    code = models.IntegerField(),
-    minCost = models.IntegerField(),
-    image = models.TextField(),
+    name = models.TextField()
+    code = models.IntegerField()
+    minCost = models.IntegerField()
+    image = models.TextField()
     type = models.ForeignKey(ProductType, models.CASCADE)
-    numPeopleToProduce = models.IntegerField(),
-    workshop = models.IntegerField(),
+    numPeopleToProduce = models.IntegerField()
+    workshop = models.IntegerField()
     materials = models.ManyToManyField(Material, db_table="Product_Materials")
 
     class Meta:

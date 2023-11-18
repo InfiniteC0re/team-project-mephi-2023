@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<style>
+    #main-wrap {
+        padding: 16px;
+    }
+
+    .list {
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        max-width: 800px;
+        overflow: auto;
+        border-radius: 8px;
+        background: rgb(255, 255, 255);
+        filter: drop-shadow(0 0 4px rgba(0, 0, 0, .15));
+    }
+
+    .toolbar {
+        padding: 8px;
+        background: rgb(246, 246, 246);
+    }
+
+    .toolbar h3 {
+        margin-top: 6px;
+        margin-bottom: 12px;
+        margin-left: 6px;
+        font-size: 18px;
+    }
+
+    .toolbar .elements {
+        height: 38px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .toolbar button,
+    .toolbar input {
+        padding: 8px 16px;
+        border-radius: 9999px;
+        border: 1px solid rgba(0, 0, 0, .2);
+        outline: none;
+        background: rgb(255, 255, 255);
+    }
+
+    .toolbar button {
+        font-weight: 600;
+        background: rgb(237, 237, 237);
+        cursor: pointer;
+        transition: 0.1s;
+    }
+
+    .toolbar button:hover {
+        background: rgb(242, 242, 242);
+        border-color: rgba(25, 174, 166, 0.635);
+        transform: scale(1.02);
+    }
+
+    .toolbar button:active {
+        transform: scale(0.98);
+    }
+
+    .toolbar input {
+        width: 100%;
+        font-size: 14px;
+        transition: 0.05s;
+    }
+
+    .toolbar input:focus {
+        border-color: rgba(25, 174, 166, 0.635);
+    }
+
+    .products .product {
+        display: flex;
+        width: 100%;
+        min-height: 90px;
+        box-sizing: border-box;
+        padding: 12px;
+        gap: 6px;
+    }
+
+    .products .product:nth-child(2n) {
+        background: rgb(246, 246, 246);
+    }
+
+    .products .product .image {
+        min-width: 110px;
+        height: 81px;
+        background: rgba(0, 0, 0, .3);
+        margin: auto 0;
+    }
+
+    .products .product .info {
+        margin: 8px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px
+    }
+
+    .products .product .info .top {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .products .product .info .top .name {
+        font-weight: bold;
+    }
+
+    .products .product .info .code {
+        font-weight: 300;
+    }
+
+    .products .product .info .materials {
+        font-weight: 300;
+        margin-right: 80px;
+    }
+</style>
+
+<div id="main-wrap">
+    <div class="list">
+        <div class="toolbar">
+            <h3>Список продукции</h3>
+            <div class="elements">
+                <input type="text" placeholder="Введите для поиска...">
+                <button>Поиск</button>
+            </div>
+        </div>
+        <div class="products">
+            {% for product in products %}
+            <div class="product">
+                <div class="image"></div>
+                <div class="info">
+                    <div class="top">
+                        <div class="name">{{ product.name }}</div>
+                        <div class="cost">{{ product.minCost|intcomma }} ₽</div>
+                    </div>
+                    <div class="code">Артикул: {{ product.code }}</div>
+                    <div class="materials">
+                        <span>Материалы: </span>
+                        {% for material in product.materials.all %}
+                        <span class="material">
+                            {{ material.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

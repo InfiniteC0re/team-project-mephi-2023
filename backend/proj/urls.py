@@ -4,5 +4,5 @@ from . import views
 app_name = "proj"
 
 urlpatterns = [
-    path('', views.index, name='materialTypes'),
+    path('', views.index),
 ]
