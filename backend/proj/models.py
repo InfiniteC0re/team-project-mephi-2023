@@ -35,17 +35,8 @@ class Product(models.Model):
     type = models.ForeignKey(ProductType, models.CASCADE)
     numPeopleToProduce = models.IntegerField(),
     workshop = models.IntegerField(),
-    materials = models.ManyToManyField("Material", db_table="MaterialToProduct")
+    materials = models.ManyToManyField(Material, db_table="Product_Materials")
 
     class Meta:
         managed = False
         db_table = 'Product'
-
-class MaterialToProduct(models.Model):
-    # product = models.ForeignKey(Product, models.CASCADE),
-    # material = models.ForeignKey(Material, models.CASCADE),
-    number = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'MaterialToProduct'

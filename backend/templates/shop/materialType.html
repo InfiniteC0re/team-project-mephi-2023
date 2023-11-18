@@ -3,8 +3,8 @@
 {% block content %}
 
 <input type="text">
-{% for i in model %}
-<div class="name">{{ i.materials }}</div>
+{% for product in products %}
+<div class="name">{{ product.name }}</div>
 {% endfor %}
 
 {% endblock %}
