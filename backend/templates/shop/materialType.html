@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <input type="text">
 {% for product in products %}
-<div class="name">{{ product.name }}</div>
+    {%for material in product.materials.all %}
+        <div class="name">{{ material.name }}</div>
+    {% endfor %}
 {% endfor %}
-
 {% endblock %}

@@ -1,16 +1,21 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from .models import *
 
-# Create your views here.
-def index(request):
-    products_all = Product.objects.all()
-    paginator = Paginator(products_all, 20)
+from .serializers import ProductSerializer, MaterialSerializer
+from .models import Product, Material
+from rest_framework import viewsets
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
-    products = paginator.page(1)
 
-    for i in products:
-        i.materials.set(i.materials.all())
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.prefetch_related('materials').all()
+    serializer_class = ProductSerializer
 
-    context = { "products": products }
-    return render(request, "shop/materialType.html", context)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,
+                       filters.OrderingFilter)
+
+    filterset_fields = ('type',) # фильтрация
+    search_fields = ('=name',) # поиск
+    ordering_fields = ('name', 'minCost') # сортировка
