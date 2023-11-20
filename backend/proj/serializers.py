@@ -13,18 +13,6 @@ class Product_MaterialsSerial(serializers.ModelSerializer):
 class MaterialSerializer(serializers.ModelSerializer):
     type = SlugRelatedField(slug_field='name',
                             queryset=MaterialType.objects.all())
-    # number = serializers.SerializerMethodField()
-
-    # def get_number(self, obj):
-    #     materials_with_numbers = {}
-
-    # # Для каждого материала, связанного с объектом Product
-    #     for product in obj.materials.all():
-    #         product_material = Product_Materials.objects.get(product=product, material=obj)
-    #         materials_with_numbers[product.id] = product_material.number
-    #         break
-
-    #     return materials_with_numbers
 
     class Meta:
         model = Material
@@ -90,13 +78,7 @@ class ProductSerializer(serializers.ModelSerializer):
             if material.id not in materials_ids:
                 instance.materials.remove(material)
 
-        # for material in existing_materials:
-        #     if material.id not in materials_ids:
-        #         product_material = Product_Materials.objects.get(product=instance, material=material)
-        #         product_material.number = None
-        #         product_material.save()
         
-
         if materials_ids and number_ids:
             for material_id, number_id in zip(materials_ids, number_ids):
                 if material_id not in existing_materials_ids:
@@ -115,24 +97,3 @@ class ProductSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-        # materials_ids = [i.id for i in validated_data.pop('materials_ids', [])]
-
-        # for attr, value in validated_data.items():
-        #     setattr(instance, attr, value)
-
-        # existing_materials = instance.materials.all()
-        # existing_materials_ids = [material.id for material in existing_materials]
-
-        # # Удалить материалы, которых больше нет в списке materials_ids
-        # for material in existing_materials:
-        #     if material.id not in materials_ids:
-        #         instance.materials.remove(material)
-
-        # # Добавить новые материалы
-        # for material_id in materials_ids:
-        #     if material_id not in existing_materials_ids:
-        #         material = Material.objects.get(id=material_id)
-        #         instance.materials.add(material)
-
-        # instance.save()
-        # return instance
