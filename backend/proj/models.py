@@ -20,6 +20,7 @@ class Material(models.Model):
     numInStorage = models.IntegerField()
     minNumRemaining = models.IntegerField()
     cost = models.FloatField()
+    materials = models.ManyToManyField("Product", through="Product_Materials", related_name='matersis')
 
     class Meta:
         managed = False
