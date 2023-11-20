@@ -10,6 +10,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 
 
+def home_index(request):
+    products_all = Product.objects.all()
+    paginator = Paginator(products_all, 20)
+    
+    context = { "products": paginator.page(1) }
+    return render(request, "shop/index.html", context)
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.prefetch_related('materials').all()
     serializer_class = ProductSerializer
