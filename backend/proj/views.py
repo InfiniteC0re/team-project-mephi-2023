@@ -11,11 +11,7 @@ from rest_framework import filters
 
 
 def home_index(request):
-    products_all = Product.objects.all()
-    paginator = Paginator(products_all, 20)
-    
-    context = { "products": paginator.page(1) }
-    return render(request, "shop/index.html", context)
+    return render(request, "shop/index.html")
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -26,7 +22,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                        filters.OrderingFilter)
 
     filterset_fields = ('type',) # фильтрация
-    search_fields = ('=name',) # поиск
+    search_fields = ('name',) # поиск
     ordering_fields = ('name', 'minCost') # сортировка
 
 
