@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from .models import Product, Material, MaterialType, ProductType, Product_Materials
+from .models import Product, Material, MaterialType, ProductType, Product_Materials,ProductType
 from rest_framework.serializers import SlugRelatedField
 
 
-class Product_MaterialsSerial(serializers.ModelSerializer):
+class TypeSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Product_Materials
-        fields = ('number')
+        model = ProductType
+        fields = ('id', 'name')
 
 
 class MaterialSerializer(serializers.ModelSerializer):
