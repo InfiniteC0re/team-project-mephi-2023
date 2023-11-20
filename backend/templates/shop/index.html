@@ -183,8 +183,8 @@
         <div class="toolbar">
             <h3>Список продукции</h3>
             <div class="elements">
-                <input type="text" placeholder="Введите для поиска...">
-                <button>Поиск</button>
+                <input type="text" id="search" placeholder="Введите для поиска...">
+                <!-- <button>Поиск</button> -->
             </div>
         </div>
         <div class="products">
@@ -197,13 +197,13 @@
 </div>
 
 <script>
-    let productsInfo = { currentPage: 1, numPages: 0, result: null };
+    let productsInfo = { currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null };
     let productsElem = document.querySelector(".products");
 
     function fetchProducts(cb) {
         document.querySelector(".list").classList.add("loading");
 
-        fetch(`/api/v1/product/?page=${productsInfo.currentPage}`).then(async res => {
+        fetch(`/api/v1/product/?page=${productsInfo.currentPage}&search=${productsInfo.search}`).then(async res => {
             productsInfo.result = await res.json();
 
             let newNumPages = Math.ceil(productsInfo.result.count / 20);
@@ -312,6 +312,20 @@
             document.querySelector(".list").classList.remove("loading");
         });
     }
+
+    document.querySelector("#search").addEventListener("input", (e) => {
+        if (productsInfo.searchTimeout) {
+            clearTimeout(productsInfo.searchTimeout);
+            productsInfo.searchTimeout = null;
+        }
+
+        productsInfo.search = e.srcElement.value;
+
+        productsInfo.searchTimeout = setTimeout(() => {
+            fetchProducts();
+            productsInfo.searchTimeout = null;
+        }, 600);
+    });
 
     fetchProducts();
 </script>
