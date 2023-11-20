@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
 
 {% block content %}
 <style>
@@ -88,8 +89,20 @@
     .products .product .image {
         min-width: 110px;
         height: 81px;
-        background: rgba(0, 0, 0, .3);
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, .2);
+        background-color: #fff;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
         margin: auto 0;
+    }
+    
+    .products .product .image.missing {
+        border: 1px solid rgba(0, 0, 0, .4);
+        opacity: 0.5;
+        background-image: url(/static/products/no_image.png);
+        background-size: 76%;
     }
 
     .products .product .info {
@@ -131,7 +144,11 @@
         <div class="products">
             {% for product in products %}
             <div class="product">
-                <div class="image"></div>
+                {% if product.image|length > 2 %}
+                <div class="image" style="background-image: url({% static product.image %});"></div>
+                {% else %}
+                <div class="image missing"></div>
+                {% endif %}
                 <div class="info">
                     <div class="top">
                         <div class="name">{{ product.name }}</div>
