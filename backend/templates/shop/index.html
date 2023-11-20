@@ -17,6 +17,11 @@
         filter: drop-shadow(0 0 4px rgba(0, 0, 0, .15));
     }
 
+    .list.loading {
+        pointer-events: none;
+        opacity: 0.3;
+    }
+
     .toolbar {
         padding: 8px;
         background: rgb(246, 246, 246);
@@ -102,7 +107,7 @@
         background-position: center;
         background-repeat: no-repeat;
     }
-    
+
     .products .product .image-wrap.missing {
         border-color: rgba(0, 0, 0, .4);
         opacity: 0.5;
@@ -141,6 +146,36 @@
     .products .product .info .materials span {
         margin-right: 5px;
     }
+
+    .paginator {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin: 16px 0;
+    }
+
+    .paginator .page {
+        width: 40px;
+        height: 32px;
+        border: 1px solid rgba(0, 0, 0, .4);
+        border-radius: 4px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0.5;
+        cursor: pointer;
+        user-select: none;
+        transition: 0.1s;
+    }
+
+    .paginator .page:hover {
+        opacity: 0.85;
+    }
+
+    .paginator .page.active {
+        opacity: 1.0;
+        font-weight: bold;
+    }
 </style>
 
 <div id="main-wrap">
@@ -155,82 +190,130 @@
         <div class="products">
             <!-- Динамически созданный контент -->
         </div>
+        <div class="paginator">
+            <div class="page active">1</div>
+        </div>
     </div>
 </div>
 
 <script>
-    let productsInfo = null;
+    let productsInfo = { currentPage: 1, numPages: 0, result: null };
     let productsElem = document.querySelector(".products");
 
-    fetch("/api/v1/product/?page=1").then(async res => {
-        productsInfo = await res.json();
+    function fetchProducts(cb) {
+        document.querySelector(".list").classList.add("loading");
 
-        for (let i = 0; i < productsInfo.results.length; i++) {
-            let product = productsInfo.results[i];
+        fetch(`/api/v1/product/?page=${productsInfo.currentPage}`).then(async res => {
+            productsInfo.result = await res.json();
 
-            let productElem = document.createElement("div");
-            productElem.classList.add("product");
+            let newNumPages = Math.ceil(productsInfo.result.count / 20);
+            if (newNumPages != productsInfo.numPages) {
+                productsInfo.numPages = Math.ceil(productsInfo.result.count / 20);
 
-            let imageWrapElem = document.createElement("div");
-            imageWrapElem.classList.add("image-wrap");
-            productElem.appendChild(imageWrapElem);
+                const paginatorElem = document.querySelector(".paginator");
+                paginatorElem.innerHTML = "";
 
-            let imageElem = document.createElement("div");
-            imageElem.classList.add("image");
-            imageWrapElem.appendChild(imageElem);
+                for (let i = 0; i < productsInfo.numPages; i++) {
+                    const pageElem = document.createElement("div");
+                    pageElem.innerText = i + 1;
+                    pageElem.classList.add("page");
 
-            if (product.image && product.image.length > 2) {
-                imageElem.style.backgroundImage = `url(/static${product.image.replace(/\\/g, "/")})`;
-            } else {
-                imageWrapElem.classList.add("missing");
-            }
+                    if (i + 1 == productsInfo.currentPage) {
+                        pageElem.classList.add("active");
+                    }
 
-            let infoElem = document.createElement("div");
-            infoElem.classList.add("info");
-            productElem.appendChild(infoElem);
+                    pageElem.addEventListener("click", () => {
+                        paginatorElem.querySelectorAll(".page").forEach((elem) => {
+                            elem.classList.remove("active");
+                        });
 
-            let topElem = document.createElement("div");
-            topElem.classList.add("top");
-            infoElem.appendChild(topElem);
+                        pageElem.classList.add("active");
 
-            let topNameElem = document.createElement("div");
-            topNameElem.classList.add("name");
-            topNameElem.innerText = product.name;
-            topElem.appendChild(topNameElem);
-            
-            let topCostElem = document.createElement("div");
-            topCostElem.classList.add("cost");
-            topCostElem.innerText = `${product.minCost.toLocaleString()} ₽`;
-            topElem.appendChild(topCostElem);
+                        productsInfo.currentPage = i + 1;
+                        fetchProducts();
+                    });
 
-            let codeElem = document.createElement("div");
-            codeElem.classList.add("code");
-            codeElem.innerText = `Артикул: ${product.code}`;
-            infoElem.appendChild(codeElem);
-
-            let materialsElem = document.createElement("div");
-            materialsElem.classList.add("materials");
-            infoElem.appendChild(materialsElem);
-
-            let materialsHintElem = document.createElement("span");
-            materialsElem.appendChild(materialsHintElem);
-            
-            if (product.materials.length > 0) {
-                materialsHintElem.innerText = "Материалы:";
-
-                for (let k = 0; k < product.materials.length; k++) {
-                    let matElement = document.createElement("span");
-                    matElement.classList.add("material");
-                    matElement.innerText = product.materials[k].name;
-                    materialsElem.appendChild(matElement);
+                    paginatorElem.appendChild(pageElem);
                 }
-            } else {
-                materialsHintElem.innerText = "Материалы не указаны";
             }
 
-            productsElem.appendChild(productElem);
-        }
-    });
+            productsElem.innerHTML = "";
+            for (let i = 0; i < productsInfo.result.results.length; i++) {
+                let product = productsInfo.result.results[i];
+
+                let productElem = document.createElement("div");
+                productElem.classList.add("product");
+
+                let imageWrapElem = document.createElement("div");
+                imageWrapElem.classList.add("image-wrap");
+                productElem.appendChild(imageWrapElem);
+
+                let imageElem = document.createElement("div");
+                imageElem.classList.add("image");
+                imageWrapElem.appendChild(imageElem);
+
+                if (product.image && product.image.length > 2) {
+                    imageElem.style.backgroundImage = `url(/static${product.image.replace(/\\/g, "/")})`;
+                } else {
+                    imageWrapElem.classList.add("missing");
+                }
+
+                let infoElem = document.createElement("div");
+                infoElem.classList.add("info");
+                productElem.appendChild(infoElem);
+
+                let topElem = document.createElement("div");
+                topElem.classList.add("top");
+                infoElem.appendChild(topElem);
+
+                let topNameElem = document.createElement("div");
+                topNameElem.classList.add("name");
+                topNameElem.innerText = product.name;
+                topElem.appendChild(topNameElem);
+
+                let topCostElem = document.createElement("div");
+                topCostElem.classList.add("cost");
+                topCostElem.innerText = `${product.minCost.toLocaleString()} ₽`;
+                topElem.appendChild(topCostElem);
+
+                let codeElem = document.createElement("div");
+                codeElem.classList.add("code");
+                codeElem.innerText = `Артикул: ${product.code}`;
+                infoElem.appendChild(codeElem);
+
+                let materialsElem = document.createElement("div");
+                materialsElem.classList.add("materials");
+                infoElem.appendChild(materialsElem);
+
+                let materialsHintElem = document.createElement("span");
+                materialsElem.appendChild(materialsHintElem);
+
+                if (product.materials.length > 0) {
+                    materialsHintElem.innerText = "Материалы:";
+
+                    for (let k = 0; k < product.materials.length; k++) {
+                        let matElement = document.createElement("span");
+                        matElement.classList.add("material");
+                        matElement.innerText = product.materials[k].name;
+                        materialsElem.appendChild(matElement);
+                    }
+                } else {
+                    materialsHintElem.innerText = "Материалы не указаны";
+                }
+
+                productsElem.appendChild(productElem);
+            }
+
+            if (cb) {
+                cb();
+            }
+
+            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            document.querySelector(".list").classList.remove("loading");
+        });
+    }
+
+    fetchProducts();
 </script>
 
 {% endblock %}
