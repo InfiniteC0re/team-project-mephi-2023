@@ -10,6 +10,6 @@ router.register('product', ProductViewSet, basename='product')
 
 
 urlpatterns = [
-    path('v1/', include(router.urls)),
-    path('v1/products/types/', TypeApi.as_view())
+    path('api/v1/', include(router.urls)),
+    path('api/v1/products/types/', TypeApi.as_view())
 ]
