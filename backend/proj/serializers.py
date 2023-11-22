@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from .models import Product, Material, MaterialType, ProductType, Product_Materials,ProductType
+from .models import Product, Material, MaterialType, ProductType, Product_Materials, ProductType
 from rest_framework.serializers import SlugRelatedField
+
+
+class MaterialTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MaterialType
+        fields = ('id', 'name')
 
 
 class TypeSerializer(serializers.ModelSerializer):
@@ -28,11 +35,11 @@ class ProductSerializer(serializers.ModelSerializer):
     number = serializers.SerializerMethodField()
     number_id = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
-
     class Meta:
         model = Product
         fields = ('id', 'name', 'code', 'minCost', 'image', 'type',
-                  'numPeopleToProduce', 'workshop', 'materials', 'materials_ids', 'number', 'number_id')
+                  'numPeopleToProduce', 'workshop', 'materials', 
+                  'materials_ids', 'number', 'number_id')
     
     def get_number(self, obj):
         materials_with_numbers = {}
@@ -49,12 +56,10 @@ class ProductSerializer(serializers.ModelSerializer):
         return MaterialSerializer(materials, many=True).data
 
     def create(self, validated_data):
-        print(validated_data)
         materials_ids = validated_data.pop('materials_ids', [])
         number_id = validated_data.pop('number_id', [])
         product = Product.objects.create(**validated_data)
         k = 0 
-        print(number_id)
         for material_id in materials_ids:
             material = Material.objects.get(id=material_id.id)
 
