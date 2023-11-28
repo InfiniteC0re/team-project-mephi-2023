@@ -15,6 +15,7 @@
         border-radius: 8px;
         background: rgb(255, 255, 255);
         filter: drop-shadow(0 0 4px rgba(0, 0, 0, .15));
+        overflow: hidden;
     }
 
     .list.loading {
@@ -186,12 +187,40 @@
     }
 
     .filters button.active {
-        /* background: #f6ead3; */
         opacity: 1.0;
     }
 
     .filters .right {
         margin-left: auto;
+    }
+
+    .context-wrap {
+        position: relative;
+    }
+
+    .context-wrap .menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 120px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        margin-top: 16px;
+        background: rgba(0, 0, 0, .08);
+        backdrop-filter: blur(8px);
+        border-radius: 16px;
+        gap: 6px;
+        opacity: 0;
+        transition: 0.09s;
+    }
+    
+    .context-wrap .menu.visible {
+        opacity: 1;
+    }
+
+    .context-wrap .menu button {
+        border-radius: 32px;
     }
 </style>
 
@@ -206,7 +235,15 @@
                     <button class="filterButton active"><i class="fa-solid fa-font"></i>По названию</button>
                     <button class="filterButton"><i class="fa-solid fa-ruble-sign"></i>По цене</button>
                     <div class="right">
-                        <button>Фильтры</button>
+                        <div class="context-wrap">
+                            <button>Фильтры</button>
+                            <div class="menu">
+                                <button>Пресс</button>
+                                <button>Рулон</button>
+                                <button>Гранулы</button>
+                                <button>Нарезка</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -290,8 +327,6 @@
                     imageWrapElem.classList.add("missing");
                 }
 
-                let calculatedCost = 0;
-
                 let infoElem = document.createElement("div");
                 infoElem.classList.add("info");
                 productElem.appendChild(infoElem);
@@ -331,10 +366,6 @@
                         let material = product.materials[k];
                         let numMaterials = product.number[material.id];
                         
-                        if (material) {
-                            calculatedCost += numMaterials * material.cost;
-                        }
-                        
                         matElement.innerText = `${material.name} (${numMaterials})`;
                         materialsElem.appendChild(matElement);
                     }
@@ -342,9 +373,7 @@
                     materialsHintElem.innerText = "Материалы не указаны";
                 }
 
-                // calculatedCost = Math.max(calculatedCost, );
-                topCostElem.innerText = `${product.minCost} ₽`;
-
+                topCostElem.innerText = `${product.minCost.toLocaleString("en-us")} ₽`;
                 productsElem.appendChild(productElem);
             }
 
@@ -374,13 +403,37 @@
         fetchProducts();
     });
 
+    document.addEventListener("click", (e) => {
+        if (!e.srcElement || !e.srcElement.parentElement) return;
+
+        if (e.srcElement.parentElement && e.srcElement.parentElement.classList.contains("menu")) {
+            e.srcElement.parentElement.classList.remove("visible");
+            return;
+        }
+
+        let linkedMenu = e.srcElement.parentElement.querySelector(":scope > .menu");
+
+        if (linkedMenu) {
+            if (!linkedMenu.classList.contains("visible")) {
+                document.querySelectorAll(".menu.visible").forEach(menu => {
+                    if (menu != linkedMenu) {
+                        menu.classList.remove("visible");
+                    }
+                });
+            }
+    
+            linkedMenu.classList.toggle("visible");
+        }
+    })
+
     document.querySelectorAll(".filterButton").forEach((button, index) => {
         button.addEventListener("click", () => {
-            document.querySelectorAll(".filterButton").forEach(i => { i.classList.remove("active"); });
-            button.classList.add("active");
-            productsInfo.sortKind = index;
-            
-            fetchProducts();
+            if (productsInfo.sortKind != index) {
+                document.querySelectorAll(".filterButton").forEach(i => { i.classList.remove("active"); });
+                button.classList.add("active");
+                productsInfo.sortKind = index;
+                fetchProducts();
+            }
         });
     });
 
