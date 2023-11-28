@@ -35,8 +35,8 @@
     }
 
     .toolbar .elements {
-        height: 38px;
         display: flex;
+        flex-direction: column;
         gap: 8px;
     }
 
@@ -58,7 +58,6 @@
 
     .toolbar button:hover {
         background: rgb(242, 242, 242);
-        border-color: rgba(25, 174, 166, 0.635);
         transform: scale(1.02);
     }
 
@@ -70,10 +69,6 @@
         width: 100%;
         font-size: 14px;
         transition: 0.05s;
-    }
-
-    .toolbar input:focus {
-        border-color: rgba(25, 174, 166, 0.635);
     }
 
     .products .product {
@@ -122,7 +117,7 @@
         width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 4px
+        gap: 4px;
     }
 
     .products .product .info .top {
@@ -151,7 +146,7 @@
         display: flex;
         justify-content: center;
         gap: 12px;
-        margin: 16px 0;
+        margin: 16px;
     }
 
     .paginator .page {
@@ -176,6 +171,28 @@
         opacity: 1.0;
         font-weight: bold;
     }
+
+    .filters {
+        display: flex;
+        gap: 8px;
+    }
+
+    .filters .filterButton {
+        opacity: 0.4;
+    }
+
+    .filters .filterButton i {
+        margin-right: 12px;
+    }
+
+    .filters button.active {
+        /* background: #f6ead3; */
+        opacity: 1.0;
+    }
+
+    .filters .right {
+        margin-left: auto;
+    }
 </style>
 
 <div id="main-wrap">
@@ -184,7 +201,14 @@
             <h3>Список продукции</h3>
             <div class="elements">
                 <input type="text" id="search" placeholder="Введите для поиска...">
-                <!-- <button>Поиск</button> -->
+                <div class="filters">
+                    <button class="typeButton"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="filterButton active"><i class="fa-solid fa-font"></i>По названию</button>
+                    <button class="filterButton"><i class="fa-solid fa-ruble-sign"></i>По цене</button>
+                    <div class="right">
+                        <button>Фильтры</button>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="products">
@@ -197,13 +221,21 @@
 </div>
 
 <script>
-    let productsInfo = { currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null };
+    let productsInfo = { currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0 };
     let productsElem = document.querySelector(".products");
 
     function fetchProducts(cb) {
         document.querySelector(".list").classList.add("loading");
 
-        fetch(`/api/v1/product/?page=${productsInfo.currentPage}&search=${productsInfo.search}`).then(async res => {
+        let orderingParam = "ordering=" + ((productsInfo.sortType == 0) ? "-" : "+");
+
+        if (productsInfo.sortKind == 0) {
+            orderingParam += "name";
+        } else {
+            orderingParam += "minCost";
+        }
+
+        fetch(`/api/v1/product/?page=${productsInfo.currentPage}&search=${productsInfo.search}&${orderingParam}`).then(async res => {
             productsInfo.result = await res.json();
 
             let newNumPages = Math.ceil(productsInfo.result.count / 20);
@@ -252,11 +284,13 @@
                 imageElem.classList.add("image");
                 imageWrapElem.appendChild(imageElem);
 
-                if (product.image && product.image.length > 2) {
+                if (product.image && product.image != "null" && product.image.length > 2) {
                     imageElem.style.backgroundImage = `url(/static${product.image.replace(/\\/g, "/")})`;
                 } else {
                     imageWrapElem.classList.add("missing");
                 }
+
+                let calculatedCost = 0;
 
                 let infoElem = document.createElement("div");
                 infoElem.classList.add("info");
@@ -273,7 +307,6 @@
 
                 let topCostElem = document.createElement("div");
                 topCostElem.classList.add("cost");
-                topCostElem.innerText = `${product.minCost.toLocaleString()} ₽`;
                 topElem.appendChild(topCostElem);
 
                 let codeElem = document.createElement("div");
@@ -294,12 +327,23 @@
                     for (let k = 0; k < product.materials.length; k++) {
                         let matElement = document.createElement("span");
                         matElement.classList.add("material");
-                        matElement.innerText = product.materials[k].name;
+                        
+                        let material = product.materials[k];
+                        let numMaterials = product.number[material.id];
+                        
+                        if (material) {
+                            calculatedCost += numMaterials * material.cost;
+                        }
+                        
+                        matElement.innerText = `${material.name} (${numMaterials})`;
                         materialsElem.appendChild(matElement);
                     }
                 } else {
                     materialsHintElem.innerText = "Материалы не указаны";
                 }
+
+                // calculatedCost = Math.max(calculatedCost, );
+                topCostElem.innerText = `${product.minCost} ₽`;
 
                 productsElem.appendChild(productElem);
             }
@@ -313,6 +357,33 @@
         });
     }
 
+    document.querySelector(".typeButton").addEventListener("click", () => {
+        if (productsInfo.sortType == 0) {
+            productsInfo.sortType = 1;
+            document.querySelector(".typeButton").innerHTML = `<i class="fa-solid fa-arrow-up"></i>`;
+        } else {
+            productsInfo.sortType = 0;
+            document.querySelector(".typeButton").innerHTML = `<i class="fa-solid fa-arrow-down"></i>`;
+        }
+
+        if (productsInfo.searchTimeout) {
+            clearTimeout(productsInfo.searchTimeout);
+            productsInfo.searchTimeout = null;
+        }
+
+        fetchProducts();
+    });
+
+    document.querySelectorAll(".filterButton").forEach((button, index) => {
+        button.addEventListener("click", () => {
+            document.querySelectorAll(".filterButton").forEach(i => { i.classList.remove("active"); });
+            button.classList.add("active");
+            productsInfo.sortKind = index;
+            
+            fetchProducts();
+        });
+    });
+
     document.querySelector("#search").addEventListener("input", (e) => {
         if (productsInfo.searchTimeout) {
             clearTimeout(productsInfo.searchTimeout);
@@ -322,8 +393,9 @@
         productsInfo.search = e.srcElement.value;
 
         productsInfo.searchTimeout = setTimeout(() => {
-            fetchProducts();
+            productsInfo.currentPage = 1;
             productsInfo.searchTimeout = null;
+            fetchProducts();
         }, 600);
     });
 
