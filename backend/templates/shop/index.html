@@ -72,6 +72,17 @@
         transition: 0.05s;
     }
 
+    .toolbar .top {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .toolbar .top button {
+        padding: 0;
+        height: 32px;
+        width: 32px;
+    }
+    
     .products .product {
         display: flex;
         width: 100%;
@@ -79,6 +90,13 @@
         box-sizing: border-box;
         padding: 12px;
         gap: 6px;
+        transition: 0.2s;
+        cursor: pointer;
+        opacity: 0.8;
+    }
+
+    .products .product:hover {
+        opacity: 1;
     }
 
     .products .product:nth-child(2n) {
@@ -137,6 +155,7 @@
     .products .product .info .materials {
         font-weight: 300;
         margin-right: 80px;
+        opacity: 0.7;
     }
 
     .products .product .info .materials span {
@@ -202,7 +221,7 @@
         position: absolute;
         top: 100%;
         right: 0;
-        width: 120px;
+        width: 170px;
         padding: 8px;
         display: flex;
         flex-direction: column;
@@ -214,8 +233,9 @@
         opacity: 0;
         transition: 0.09s;
         pointer-events: none;
+        z-index: 5;
     }
-    
+
     .context-wrap .menu.visible {
         pointer-events: all;
         opacity: 1;
@@ -224,27 +244,91 @@
     .context-wrap .menu button {
         border-radius: 32px;
     }
+
+    #overlay {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, .3);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        display: none;
+    }
+
+    #overlay.visible {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #overlay .form {
+        width: 450px;
+        padding: 24px 20px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #overlay .form h4 {
+        margin-bottom: 12px;
+        text-align: center;
+    }
+
+    #overlay .form .buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    #overlay .form input, #overlay .form button {
+        padding: 8px 16px;
+        border-radius: 9999px;
+        border: 1px solid rgba(0, 0, 0, .2);
+        outline: none;
+        background: rgb(255, 255, 255);
+        flex: 1;
+        transition: 0.1s;
+    }
+
+    #overlay .form button:hover {
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    #overlay .form .field {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #overlay .form .field h5 {
+        margin-bottom: 4px;
+        margin-left: 8px;
+    }
 </style>
 
 <div id="main-wrap">
     <div class="list">
         <div class="toolbar">
-            <h3>Список продукции</h3>
+            <div class="top">
+                <h3>Список продукции</h3>
+                <button><i class="fa-solid fa-plus"></i></button>
+            </div>
             <div class="elements">
                 <input type="text" id="search" placeholder="Введите для поиска...">
                 <div class="filters">
                     <button class="typeButton"><i class="fa-solid fa-arrow-down"></i></button>
                     <button class="filterButton active"><i class="fa-solid fa-font"></i>По названию</button>
                     <button class="filterButton"><i class="fa-solid fa-ruble-sign"></i>По цене</button>
+                    <button class="filterButton"><i class="fa-solid fa-industry"></i>По цеху</button>
                     <div class="right">
                         <div class="context-wrap">
                             <button>Фильтры</button>
-                            <div class="menu">
-                                <button>Пресс</button>
-                                <button>Рулон</button>
-                                <button>Гранулы</button>
-                                <button>Нарезка</button>
-                            </div>
+                            <div class="menu" id="context-filters"></div>
                         </div>
                     </div>
                 </div>
@@ -257,10 +341,39 @@
             <div class="page active">1</div>
         </div>
     </div>
+    <div id="overlay">
+        <div class="form">
+            <h4 id="overlay-caption">Редактирование продукции</h4>
+            <div class="field">
+                <h5>Название</h5>
+                <input type="text" id="product-name" placeholder="Наименование продукции...">
+            </div>
+            <div class="field">
+                <h5>Артикул</h5>
+                <input type="text" id="product-code" placeholder="Артикул...">
+            </div>
+            <div class="field">
+                <h5>Кол-во человек для производства</h5>
+                <input type="text" id="product-numPeople" placeholder="Кол-во человек для производства...">
+            </div>
+            <div class="field">
+                <h5>Цех</h5>
+                <input type="text" id="product-workshop" placeholder="Номер цеха...">
+            </div>
+            <div class="field">
+                <h5>Минимальная стоимость</h5>
+                <input type="text" id="product-minCost" placeholder="Минимальная стоимость...">
+            </div>
+            <div class="buttons">
+                <button id="overlayOk">ОК</button>
+                <button id="overlayCancel">Отмена</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    let productsInfo = { currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0 };
+    let productsInfo = { overlayId: 0, overlayProduct: null, currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0, productTypes: [], selectedProduct: -1 };
     let productsElem = document.querySelector(".products");
 
     function fetchProducts(cb) {
@@ -270,11 +383,23 @@
 
         if (productsInfo.sortKind == 0) {
             orderingParam += "name";
-        } else {
+        } else if (productsInfo.sortKind == 1) {
             orderingParam += "minCost";
+        } else if (productsInfo.sortKind == 2) {
+            orderingParam += "workshop";
         }
 
-        fetch(`/api/v1/product/?page=${productsInfo.currentPage}&search=${productsInfo.search}&${orderingParam}`).then(async res => {
+        let typeParam = "";
+
+        if (productsInfo.selectedProduct != -1) {
+            let id = productsInfo.productTypes[productsInfo.selectedProduct].id;
+
+            if (id != -1) {
+                typeParam += `&type=${id}`;
+            }
+        }
+
+        fetch(`/api/v1/product/?page=${productsInfo.currentPage}&search=${productsInfo.search}&${orderingParam}${typeParam}`).then(async res => {
             productsInfo.result = await res.json();
 
             let newNumPages = Math.ceil(productsInfo.result.count / 20);
@@ -348,7 +473,7 @@
 
                 let codeElem = document.createElement("div");
                 codeElem.classList.add("code");
-                codeElem.innerText = `Артикул: ${product.code}`;
+                codeElem.innerText = `${product.type} / Артикул: ${product.code} / Цех №${product.workshop}`;
                 infoElem.appendChild(codeElem);
 
                 let materialsElem = document.createElement("div");
@@ -364,10 +489,10 @@
                     for (let k = 0; k < product.materials.length; k++) {
                         let matElement = document.createElement("span");
                         matElement.classList.add("material");
-                        
+
                         let material = product.materials[k];
                         let numMaterials = product.number[material.id];
-                        
+
                         matElement.innerText = `${material.name} (${numMaterials})`;
                         materialsElem.appendChild(matElement);
                     }
@@ -377,6 +502,17 @@
 
                 topCostElem.innerText = `${product.minCost.toLocaleString("en-us")} ₽`;
                 productsElem.appendChild(productElem);
+
+                productElem.addEventListener("click", () => {
+                    productsInfo.overlayProduct = product;
+                    document.querySelector("#product-name").value = product.name;
+                    document.querySelector("#product-code").value = product.code;
+                    document.querySelector("#product-numPeople").value = product.numPeopleToProduce;
+                    document.querySelector("#product-workshop").value = product.workshop;
+                    document.querySelector("#product-minCost").value = product.minCost;
+                    document.querySelector("#overlay-caption").innerHTML = "Редактирование продукции";
+                    document.querySelector("#overlay").classList.add("visible");
+                });
             }
 
             if (cb) {
@@ -423,7 +559,7 @@
                     }
                 });
             }
-    
+
             linkedMenu.classList.toggle("visible");
         }
     })
@@ -452,6 +588,66 @@
             productsInfo.searchTimeout = null;
             fetchProducts();
         }, 600);
+    });
+
+    fetch("/api/v1/products/types").then(async res => {
+        let productTypes = await res.json();
+
+        productTypes.unshift({ id: -1, name: "Все" });
+        productsInfo.productTypes = productTypes;
+
+        let filtersContext = document.querySelector("#context-filters");
+        for (let i = 0; i < productsInfo.productTypes.length; i++) {
+            let buttonElem = document.createElement("button");
+            buttonElem.innerText = productsInfo.productTypes[i].name;
+
+            buttonElem.addEventListener("click", () => {
+                productsInfo.selectedProduct = i;
+                fetchProducts();
+            });
+
+            filtersContext.appendChild(buttonElem);
+        }
+    });
+
+    document.querySelector("#overlayOk").addEventListener("click", () => {
+        let updatedObject = { ...productsInfo.overlayProduct };
+
+        if (productsInfo.overlayId == 0) {
+            delete updatedObject.number;
+            delete updatedObject.materials;
+            updatedObject.materials_ids = [];
+            updatedObject.number_id = [];
+
+            for (let i = 0; i < productsInfo.overlayProduct.materials.length; i++) {
+                updatedObject.materials_ids.push(productsInfo.overlayProduct.materials[i].id);
+                updatedObject.number_id.push(productsInfo.overlayProduct.number[productsInfo.overlayProduct.materials[i].id]);
+            }
+
+            updatedObject.name = document.querySelector("#product-name").value;
+            updatedObject.code = document.querySelector("#product-code").value;
+            updatedObject.numPeopleToProduce = document.querySelector("#product-numPeople").value;
+            updatedObject.workshop = document.querySelector("#product-workshop").value;
+            updatedObject.minCost = document.querySelector("#product-minCost").value;
+            
+            fetch(`/api/v1/product/${updatedObject.id}/`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "PUT",
+                body: JSON.stringify(updatedObject)
+            }).then(async r => {
+                document.querySelector("#overlay").classList.remove("visible");
+                console.log(await r.text());
+                fetchProducts();
+            });
+        } else {
+
+        }
+    });
+
+    document.querySelector("#overlayCancel").addEventListener("click", () => {
+        document.querySelector("#overlay").classList.remove("visible");
     });
 
     fetchProducts();

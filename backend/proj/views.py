@@ -23,7 +23,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     filterset_fields = ('type',) # фильтрация
     search_fields = ('name',) # поиск
-    ordering_fields = ('name', 'minCost') # сортировка
+    ordering_fields = ('name', 'minCost', 'workshop') # сортировка
 
 
 class TypeApi(APIView):

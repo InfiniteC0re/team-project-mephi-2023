@@ -41,7 +41,7 @@ class Product(models.Model):
     name = models.TextField()
     code = models.IntegerField()
     minCost = models.IntegerField()
-    image = models.TextField()
+    image = models.TextField(null=True, blank=True)
     type = models.ForeignKey(ProductType, models.CASCADE)
     numPeopleToProduce = models.IntegerField()
     workshop = models.IntegerField()
