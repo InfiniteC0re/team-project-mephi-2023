@@ -121,7 +121,7 @@
         font-size: 16px;
         pointer-events: none;
     }
-    
+
     .products .product:hover::after {
         transform: translate(100%, -50%);
         opacity: 1;
@@ -1038,18 +1038,23 @@
             updatedObject.numPeopleToProduce = document.querySelector("#product-numPeople").value;
             updatedObject.workshop = document.querySelector("#product-workshop").value;
             updatedObject.minCost = document.querySelector("#product-minCost").value;
-            overlayElem.querySelector(".form").classList.remove("visible");
 
-            fetch(`/api/v1/product/${updatedObject.id}/`, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: "PUT",
-                body: JSON.stringify(updatedObject)
-            }).then(async r => {
-                console.log(await r.text());
-                fetchProducts(() => overlayElem.classList.remove("visible"));
-            });
+            if (updatedObject.name.length > 0 && updatedObject.type.length > 0 && updatedObject.code.length > 0 && updatedObject.numPeopleToProduce.length > 0 && updatedObject.workshop.length > 0 && updatedObject.minCost.length > 0) {
+                overlayElem.querySelector(".form").classList.remove("visible");
+
+                fetch(`/api/v1/product/${updatedObject.id}/`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    method: "PUT",
+                    body: JSON.stringify(updatedObject)
+                }).then(async r => {
+                    console.log(await r.text());
+                    fetchProducts(() => overlayElem.classList.remove("visible"));
+                });
+            } else {
+                alert("Одно из полей не заполнено!");
+            }
         } else {
             // Добавление новой записи
             let name = document.querySelector("#product-name").value;
@@ -1060,7 +1065,7 @@
             let workshop = document.querySelector("#product-workshop").value;
             let minCost = document.querySelector("#product-minCost").value;
 
-            if (name && type && code && numPeopleToProduce && workshop && minCost) {
+            if (name.length > 0 && type.length > 0 && code.length > 0 && numPeopleToProduce.length > 0 && workshop.length > 0 && minCost.length > 0) {
                 overlayElem.querySelector(".form").classList.remove("visible");
 
                 fetch(`/api/v1/product/`, {
@@ -1083,6 +1088,8 @@
                     console.log(await r.text());
                     fetchProducts(() => overlayElem.classList.remove("visible"));
                 });
+            } else {
+                alert("Одно из полей не заполнено!");
             }
         }
     });
