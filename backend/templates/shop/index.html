@@ -44,10 +44,11 @@
     .toolbar button,
     .toolbar input {
         padding: 8px 16px;
-        border-radius: 9999px;
+        border-radius: 4px;
         border: 1px solid rgba(0, 0, 0, .2);
         outline: none;
         background: rgb(255, 255, 255);
+        text-align: left;
     }
 
     .toolbar button {
@@ -81,8 +82,9 @@
         padding: 0;
         height: 32px;
         width: 32px;
+        text-align: center;
     }
-    
+
     .products .product {
         display: flex;
         width: 100%;
@@ -165,13 +167,13 @@
     .paginator {
         display: flex;
         justify-content: center;
-        gap: 12px;
+        gap: 8px;
         margin: 16px;
     }
 
     .paginator .page {
-        width: 40px;
         height: 32px;
+        min-width: 40px;
         border: 1px solid rgba(0, 0, 0, .4);
         border-radius: 4px;
         display: flex;
@@ -181,6 +183,7 @@
         cursor: pointer;
         user-select: none;
         transition: 0.1s;
+        padding: 0 14px;
     }
 
     .paginator .page:hover {
@@ -197,11 +200,11 @@
         gap: 8px;
     }
 
-    .filters .filterButton {
+    .filters .sortButton {
         opacity: 0.4;
     }
 
-    .filters .filterButton i {
+    .filters .sortButton i {
         margin-right: 12px;
     }
 
@@ -226,9 +229,9 @@
         display: flex;
         flex-direction: column;
         margin-top: 16px;
-        background: rgba(0, 0, 0, .08);
+        background: rgba(0, 0, 0, .12);
         backdrop-filter: blur(8px);
-        border-radius: 16px;
+        border-radius: 4px;
         gap: 6px;
         opacity: 0;
         transition: 0.09s;
@@ -239,10 +242,6 @@
     .context-wrap .menu.visible {
         pointer-events: all;
         opacity: 1;
-    }
-
-    .context-wrap .menu button {
-        border-radius: 32px;
     }
 
     #overlay {
@@ -267,8 +266,12 @@
         width: 450px;
         padding: 24px 20px;
         background: #fff;
-        border-radius: 16px;
+        border-radius: 12px;
         box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+        display: none;
+    }
+
+    #overlay .form.visible {
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -282,11 +285,14 @@
     #overlay .form .buttons {
         display: flex;
         gap: 8px;
+        margin-top: 6px;
     }
 
-    #overlay .form input, #overlay .form button {
+    #overlay .form input,
+    #overlay .form button,
+    .select-wrapper select {
         padding: 8px 16px;
-        border-radius: 9999px;
+        border-radius: 4px;
         border: 1px solid rgba(0, 0, 0, .2);
         outline: none;
         background: rgb(255, 255, 255);
@@ -294,9 +300,18 @@
         transition: 0.1s;
     }
 
-    #overlay .form button:hover {
-        cursor: pointer;
+    #overlay .form button {
         font-weight: bold;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 0;
+        font-size: 14px;
+        cursor: pointer;
+        transition: 0.1s;
+    }
+
+    #overlay .form button:hover {
+        filter: brightness(1.1);
     }
 
     #overlay .form .field {
@@ -308,6 +323,139 @@
     #overlay .form .field h5 {
         margin-bottom: 4px;
         margin-left: 8px;
+        font-size: 14px;
+    }
+
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-wrapper select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+    }
+
+    .select-wrapper::after {
+        content: "▼";
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        font-size: 14px;
+        transform: translateY(-50%);
+    }
+
+    button.gray {
+        background: #6b6b6b !important;
+        color: #fff;
+    }
+
+    button.blue {
+        background: rgb(0, 171, 255) !important;
+        color: #fff;
+    }
+
+    button.red {
+        background: rgb(242, 80, 103) !important;
+        color: #fff;
+    }
+
+    .lds-spinner {
+        color: official;
+        display: inline-block;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 80px;
+        height: 80px;
+    }
+
+    .lds-spinner div {
+        transform-origin: 40px 40px;
+        animation: lds-spinner 1.2s linear infinite;
+    }
+
+    .lds-spinner div:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 3px;
+        left: 37px;
+        width: 6px;
+        height: 18px;
+        border-radius: 20%;
+        background: #fff;
+    }
+
+    .lds-spinner div:nth-child(1) {
+        transform: rotate(0deg);
+        animation-delay: -1.1s;
+    }
+
+    .lds-spinner div:nth-child(2) {
+        transform: rotate(30deg);
+        animation-delay: -1s;
+    }
+
+    .lds-spinner div:nth-child(3) {
+        transform: rotate(60deg);
+        animation-delay: -0.9s;
+    }
+
+    .lds-spinner div:nth-child(4) {
+        transform: rotate(90deg);
+        animation-delay: -0.8s;
+    }
+
+    .lds-spinner div:nth-child(5) {
+        transform: rotate(120deg);
+        animation-delay: -0.7s;
+    }
+
+    .lds-spinner div:nth-child(6) {
+        transform: rotate(150deg);
+        animation-delay: -0.6s;
+    }
+
+    .lds-spinner div:nth-child(7) {
+        transform: rotate(180deg);
+        animation-delay: -0.5s;
+    }
+
+    .lds-spinner div:nth-child(8) {
+        transform: rotate(210deg);
+        animation-delay: -0.4s;
+    }
+
+    .lds-spinner div:nth-child(9) {
+        transform: rotate(240deg);
+        animation-delay: -0.3s;
+    }
+
+    .lds-spinner div:nth-child(10) {
+        transform: rotate(270deg);
+        animation-delay: -0.2s;
+    }
+
+    .lds-spinner div:nth-child(11) {
+        transform: rotate(300deg);
+        animation-delay: -0.1s;
+    }
+
+    .lds-spinner div:nth-child(12) {
+        transform: rotate(330deg);
+        animation-delay: 0s;
+    }
+
+    @keyframes lds-spinner {
+        0% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+        }
     }
 </style>
 
@@ -316,18 +464,18 @@
         <div class="toolbar">
             <div class="top">
                 <h3>Список продукции</h3>
-                <button><i class="fa-solid fa-plus"></i></button>
+                <button id="addNewButton"><i class="fa-solid fa-plus"></i></button>
             </div>
             <div class="elements">
                 <input type="text" id="search" placeholder="Введите для поиска...">
                 <div class="filters">
-                    <button class="typeButton"><i class="fa-solid fa-arrow-down"></i></button>
-                    <button class="filterButton active"><i class="fa-solid fa-font"></i>По названию</button>
-                    <button class="filterButton"><i class="fa-solid fa-ruble-sign"></i>По цене</button>
-                    <button class="filterButton"><i class="fa-solid fa-industry"></i>По цеху</button>
+                    <button class="sortTypeButton"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="sortButton active"><i class="fa-solid fa-font"></i>По названию</button>
+                    <button class="sortButton"><i class="fa-solid fa-ruble-sign"></i>По цене</button>
+                    <button class="sortButton"><i class="fa-solid fa-industry"></i>По цеху</button>
                     <div class="right">
                         <div class="context-wrap">
-                            <button>Фильтры</button>
+                            <button id="currFilter">Фильтр</button>
                             <div class="menu" id="context-filters"></div>
                         </div>
                     </div>
@@ -342,6 +490,20 @@
         </div>
     </div>
     <div id="overlay">
+        <div class="lds-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
         <div class="form">
             <h4 id="overlay-caption">Редактирование продукции</h4>
             <div class="field">
@@ -349,31 +511,42 @@
                 <input type="text" id="product-name" placeholder="Наименование продукции...">
             </div>
             <div class="field">
+                <h5>Тип</h5>
+                <div class="select-wrapper">
+                    <select id="product-type"></select>
+                </div>
+            </div>
+            <div class="field">
                 <h5>Артикул</h5>
-                <input type="text" id="product-code" placeholder="Артикул...">
+                <input type="text" autocomplete="off" id="product-code" placeholder="Артикул...">
+            </div>
+            <div class="field">
+                <h5>Изображение</h5>
+                <input type="text" autocomplete="off" id="product-image" placeholder="Изображение...">
             </div>
             <div class="field">
                 <h5>Кол-во человек для производства</h5>
-                <input type="text" id="product-numPeople" placeholder="Кол-во человек для производства...">
+                <input type="text" autocomplete="off" id="product-numPeople" placeholder="Число...">
             </div>
             <div class="field">
                 <h5>Цех</h5>
-                <input type="text" id="product-workshop" placeholder="Номер цеха...">
+                <input type="text" autocomplete="off" id="product-workshop" placeholder="Номер цеха...">
             </div>
             <div class="field">
                 <h5>Минимальная стоимость</h5>
-                <input type="text" id="product-minCost" placeholder="Минимальная стоимость...">
+                <input type="text" autocomplete="off" id="product-minCost" placeholder="Минимальная стоимость...">
             </div>
             <div class="buttons">
-                <button id="overlayOk">ОК</button>
-                <button id="overlayCancel">Отмена</button>
+                <button id="overlayOk" class="blue">ОК</button>
+                <button id="overlayCancel" class="gray">Отмена</button>
+                <button id="overlayDelete" class="red">Удалить</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let productsInfo = { overlayId: 0, overlayProduct: null, currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0, productTypes: [], selectedProduct: -1 };
+    let productsInfo = { overlayId: 0, overlayProduct: null, currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0, productTypes: [], selectedProductType: -1 };
     let productsElem = document.querySelector(".products");
 
     function fetchProducts(cb) {
@@ -391,8 +564,8 @@
 
         let typeParam = "";
 
-        if (productsInfo.selectedProduct != -1) {
-            let id = productsInfo.productTypes[productsInfo.selectedProduct].id;
+        if (productsInfo.selectedProductType != -1) {
+            let id = productsInfo.productTypes[productsInfo.selectedProductType].id;
 
             if (id != -1) {
                 typeParam += `&type=${id}`;
@@ -506,12 +679,17 @@
                 productElem.addEventListener("click", () => {
                     productsInfo.overlayProduct = product;
                     document.querySelector("#product-name").value = product.name;
+                    document.querySelector("#product-type").value = product.type;
                     document.querySelector("#product-code").value = product.code;
+                    document.querySelector("#product-image").value = product.image;
                     document.querySelector("#product-numPeople").value = product.numPeopleToProduce;
                     document.querySelector("#product-workshop").value = product.workshop;
                     document.querySelector("#product-minCost").value = product.minCost;
                     document.querySelector("#overlay-caption").innerHTML = "Редактирование продукции";
+                    document.querySelector("#overlayDelete").style.display = "block";
+                    document.querySelector("#overlay").querySelector(".form").classList.add("visible");
                     document.querySelector("#overlay").classList.add("visible");
+                    productsInfo.overlayId = 0;
                 });
             }
 
@@ -524,13 +702,13 @@
         });
     }
 
-    document.querySelector(".typeButton").addEventListener("click", () => {
+    document.querySelector(".sortTypeButton").addEventListener("click", (e) => {
         if (productsInfo.sortType == 0) {
             productsInfo.sortType = 1;
-            document.querySelector(".typeButton").innerHTML = `<i class="fa-solid fa-arrow-up"></i>`;
+            e.srcElement.innerHTML = `<i class="fa-solid fa-arrow-up"></i>`;
         } else {
             productsInfo.sortType = 0;
-            document.querySelector(".typeButton").innerHTML = `<i class="fa-solid fa-arrow-down"></i>`;
+            e.srcElement.innerHTML = `<i class="fa-solid fa-arrow-down"></i>`;
         }
 
         if (productsInfo.searchTimeout) {
@@ -564,10 +742,10 @@
         }
     })
 
-    document.querySelectorAll(".filterButton").forEach((button, index) => {
+    document.querySelectorAll(".sortButton").forEach((button, index) => {
         button.addEventListener("click", () => {
             if (productsInfo.sortKind != index) {
-                document.querySelectorAll(".filterButton").forEach(i => { i.classList.remove("active"); });
+                document.querySelectorAll(".sortButton").forEach(i => { i.classList.remove("active"); });
                 button.classList.add("active");
                 productsInfo.sortKind = index;
                 fetchProducts();
@@ -597,23 +775,50 @@
         productsInfo.productTypes = productTypes;
 
         let filtersContext = document.querySelector("#context-filters");
+        let productTypeElem = document.querySelector("#product-type");
+
         for (let i = 0; i < productsInfo.productTypes.length; i++) {
             let buttonElem = document.createElement("button");
             buttonElem.innerText = productsInfo.productTypes[i].name;
 
             buttonElem.addEventListener("click", () => {
-                productsInfo.selectedProduct = i;
+                productsInfo.selectedProductType = i;
                 fetchProducts();
             });
 
             filtersContext.appendChild(buttonElem);
+
+            if (i != 0) {
+                // Если это не вариант "Все", то добавить пункт в select
+                let optionElem = document.createElement("option");
+                optionElem.value = productsInfo.productTypes[i].name;
+                optionElem.innerText = productsInfo.productTypes[i].name;
+                productTypeElem.appendChild(optionElem);
+            }
         }
+    });
+
+    document.querySelector("#addNewButton").addEventListener("click", () => {
+        productsInfo.overlayProduct = null;
+        document.querySelector("#product-name").value = "";
+        document.querySelector("#product-type").selectedIndex = 0;
+        document.querySelector("#product-code").value = "";
+        document.querySelector("#product-image").value = "";
+        document.querySelector("#product-numPeople").value = "";
+        document.querySelector("#product-workshop").value = "";
+        document.querySelector("#product-minCost").value = "";
+        document.querySelector("#overlay-caption").innerHTML = "Добавление продукции";
+        document.querySelector("#overlay").classList.add("visible");
+        document.querySelector("#overlay").querySelector(".form").classList.add("visible");
+        document.querySelector("#overlayDelete").style.display = "none";
+        productsInfo.overlayId = 1;
     });
 
     document.querySelector("#overlayOk").addEventListener("click", () => {
         let updatedObject = { ...productsInfo.overlayProduct };
 
         if (productsInfo.overlayId == 0) {
+            // Обновление записи
             delete updatedObject.number;
             delete updatedObject.materials;
             updatedObject.materials_ids = [];
@@ -625,11 +830,14 @@
             }
 
             updatedObject.name = document.querySelector("#product-name").value;
+            updatedObject.type = document.querySelector("#product-type").value;
             updatedObject.code = document.querySelector("#product-code").value;
+            updatedObject.image = document.querySelector("#product-image").value;
             updatedObject.numPeopleToProduce = document.querySelector("#product-numPeople").value;
             updatedObject.workshop = document.querySelector("#product-workshop").value;
             updatedObject.minCost = document.querySelector("#product-minCost").value;
-            
+            document.querySelector("#overlay").querySelector(".form").classList.remove("visible");
+
             fetch(`/api/v1/product/${updatedObject.id}/`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -642,12 +850,55 @@
                 fetchProducts();
             });
         } else {
+            let name = document.querySelector("#product-name").value;
+            let type = document.querySelector("#product-type").value;
+            let code = document.querySelector("#product-code").value;
+            let image = document.querySelector("#product-image").value;
+            let numPeopleToProduce = document.querySelector("#product-numPeople").value;
+            let workshop = document.querySelector("#product-workshop").value;
+            let minCost = document.querySelector("#product-minCost").value;
 
+            if (name && type && code && numPeopleToProduce && workshop && minCost) {
+                document.querySelector("#overlay").querySelector(".form").classList.remove("visible");
+
+                fetch(`/api/v1/product/`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        materials_ids: [],
+                        number_id: [],
+                        name,
+                        code,
+                        image,
+                        numPeopleToProduce,
+                        minCost,
+                        workshop,
+                        type
+                    })
+                }).then(async r => {
+                    console.log(await r.text());
+                    fetchProducts(() => document.querySelector("#overlay").classList.remove("visible"));
+                });
+            }
         }
     });
 
     document.querySelector("#overlayCancel").addEventListener("click", () => {
         document.querySelector("#overlay").classList.remove("visible");
+    });
+
+    document.querySelector("#overlayDelete").addEventListener("click", () => {
+        if (productsInfo.overlayId == 0) {
+            document.querySelector("#overlay").querySelector(".form").classList.remove("visible");
+
+            fetch(`/api/v1/product/${productsInfo.overlayProduct.id}`, {
+                method: "DELETE"
+            }).then(async r => {
+                fetchProducts(() => document.querySelector("#overlay").classList.remove("visible"));
+            });
+        }
     });
 
     fetchProducts();
