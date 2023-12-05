@@ -4,6 +4,8 @@
 <style>
     #main-wrap {
         padding: 16px;
+        overflow: auto;
+        max-height: 100vh;
     }
 
     .list {
@@ -11,7 +13,6 @@
         display: flex;
         flex-direction: column;
         max-width: 800px;
-        overflow: auto;
         border-radius: 8px;
         background: rgb(255, 255, 255);
         filter: drop-shadow(0 0 4px rgba(0, 0, 0, .15));
@@ -158,6 +159,7 @@
         font-weight: 300;
         margin-right: 80px;
         opacity: 0.7;
+        padding-right: 4px;
     }
 
     .products .product .info .materials span {
@@ -263,23 +265,41 @@
     }
 
     #overlay .form {
-        width: 450px;
         padding: 24px 20px;
         background: #fff;
         border-radius: 12px;
         box-shadow: 0 0 8px rgba(0, 0, 0, .3);
         display: none;
+        z-index: 5;
+        font-size: 13px;
+        max-height: 564px;
     }
 
     #overlay .form.visible {
         display: flex;
-        flex-direction: column;
         gap: 8px;
+    }
+
+    #overlay .form .left {
+        width: 340px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        gap: 8px;
+    }
+
+    #overlay .form .right {
+        border-left: 1px solid rgba(0, 0, 0, .2);
+        padding-left: 8px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
 
     #overlay .form h4 {
         margin-bottom: 12px;
         text-align: center;
+        font-size: 16px;
     }
 
     #overlay .form .buttons {
@@ -291,7 +311,7 @@
     #overlay .form input,
     #overlay .form button,
     .select-wrapper select {
-        padding: 8px 16px;
+        padding: 8px;
         border-radius: 4px;
         border: 1px solid rgba(0, 0, 0, .2);
         outline: none;
@@ -322,8 +342,65 @@
 
     #overlay .form .field h5 {
         margin-bottom: 4px;
-        margin-left: 8px;
+        margin-left: 4px;
         font-size: 14px;
+    }
+
+    #overlay .form .right h4 {
+        text-align: left;
+        margin-left: 8px;
+    }
+
+    #overlay .form .materials {
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+        width: 100%;
+        gap: 4px;
+        padding-right: 4px;
+    }
+
+    #overlay .form .materials .material {
+        display: flex;
+        gap: 4px;
+    }
+
+    #overlay .form .materials .material .name,
+    #overlay .form .materials .material .count {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, .2);
+        outline: none;
+        background: rgb(255, 255, 255);
+        transition: 0.1s;
+    }
+
+    #overlay .form .materials .material .name {
+        flex: 1;
+        max-width: 240px;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    #overlay .form .materials .material .count {
+        width: 33px;
+        padding: 0;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: unset;
+    }
+
+    #overlay .form .materials .material button {
+        flex: unset;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, .2);
+        outline: none;
+        background: rgb(255, 255, 255);
+        width: 33px;
+        padding: 0;
     }
 
     .select-wrapper {
@@ -337,12 +414,15 @@
     }
 
     .select-wrapper::after {
-        content: "▼";
+        content: "\f0d7";
         position: absolute;
         top: 50%;
-        right: 14px;
+        right: 12px;
         font-size: 14px;
         transform: translateY(-50%);
+        font-family: "Font Awesome 6 Free";
+        font-weight: 600;
+        pointer-events: none;
     }
 
     button.gray {
@@ -457,6 +537,16 @@
             opacity: 0;
         }
     }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
 </style>
 
 <div id="main-wrap">
@@ -505,49 +595,102 @@
             <div></div>
         </div>
         <div class="form">
-            <h4 id="overlay-caption">Редактирование продукции</h4>
-            <div class="field">
-                <h5>Название</h5>
-                <input type="text" id="product-name" placeholder="Наименование продукции...">
-            </div>
-            <div class="field">
-                <h5>Тип</h5>
-                <div class="select-wrapper">
-                    <select id="product-type"></select>
+            <div class="left">
+                <h4 id="overlay-caption">Редактирование продукции</h4>
+                <div class="field">
+                    <h5>Название</h5>
+                    <input type="text" autocomplete="off" id="product-name" placeholder="Наименование продукции...">
+                </div>
+                <div class="field">
+                    <h5>Тип</h5>
+                    <div class="select-wrapper">
+                        <select id="product-type"></select>
+                    </div>
+                </div>
+                <div class="field">
+                    <h5>Артикул</h5>
+                    <input type="text" autocomplete="off" id="product-code" placeholder="Артикул...">
+                </div>
+                <div class="field">
+                    <h5>Изображение</h5>
+                    <input type="text" autocomplete="off" id="product-image" placeholder="Изображение...">
+                </div>
+                <div class="field">
+                    <h5>Кол-во человек для производства</h5>
+                    <input type="text" autocomplete="off" id="product-numPeople" placeholder="Число...">
+                </div>
+                <div class="field">
+                    <h5>Цех</h5>
+                    <input type="text" autocomplete="off" id="product-workshop" placeholder="Номер цеха...">
+                </div>
+                <div class="field">
+                    <h5>Минимальная стоимость</h5>
+                    <input type="text" autocomplete="off" id="product-minCost" placeholder="Минимальная стоимость...">
+                </div>
+                <div class="buttons">
+                    <button id="overlayOk" class="blue">ОК</button>
+                    <button id="overlayCancel" class="gray">Отмена</button>
+                    <button id="overlayDelete" class="red">Удалить</button>
                 </div>
             </div>
-            <div class="field">
-                <h5>Артикул</h5>
-                <input type="text" autocomplete="off" id="product-code" placeholder="Артикул...">
-            </div>
-            <div class="field">
-                <h5>Изображение</h5>
-                <input type="text" autocomplete="off" id="product-image" placeholder="Изображение...">
-            </div>
-            <div class="field">
-                <h5>Кол-во человек для производства</h5>
-                <input type="text" autocomplete="off" id="product-numPeople" placeholder="Число...">
-            </div>
-            <div class="field">
-                <h5>Цех</h5>
-                <input type="text" autocomplete="off" id="product-workshop" placeholder="Номер цеха...">
-            </div>
-            <div class="field">
-                <h5>Минимальная стоимость</h5>
-                <input type="text" autocomplete="off" id="product-minCost" placeholder="Минимальная стоимость...">
-            </div>
-            <div class="buttons">
-                <button id="overlayOk" class="blue">ОК</button>
-                <button id="overlayCancel" class="gray">Отмена</button>
-                <button id="overlayDelete" class="red">Удалить</button>
+            <div class="right">
+                <h4>Выбор материалов</h4>
+                <div class="materials" id="materialList"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let productsInfo = { overlayId: 0, overlayProduct: null, currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0, productTypes: [], selectedProductType: -1 };
+    let productsInfo = { overlayId: 0, overlayProduct: null, currentPage: 1, numPages: 0, result: null, search: "", searchTimeout: null, sortType: 0, sortKind: 0, productTypes: [], selectedProductType: -1, materials: null };
     let productsElem = document.querySelector(".products");
+
+    const overlayElem = document.querySelector("#overlay");
+
+    function fillMaterialList(product) {
+        let materialListElem = document.querySelector("#materialList");
+        materialListElem.innerHTML = "";
+
+        productsInfo.materials.forEach((material) => {
+            let materialElem = document.createElement("div");
+            materialElem.classList.add("material");
+
+            let nameElem = document.createElement("div");
+            nameElem.classList.add("name");
+            nameElem.innerText = material.name;
+            materialElem.appendChild(nameElem);
+
+            let countElem = document.createElement("input");
+            countElem.type = "number";
+            countElem.classList.add("count");
+            countElem.classList.add("material-number");
+            countElem.material = material;
+
+            if (product == null) {
+                countElem.value = 0;
+            } else {
+                if (product.materials.find(m => m.id == material.id)) {
+                    countElem.value = product.number[material.id];
+                } else {
+                    countElem.value = 0;
+                }
+            }
+
+            materialElem.appendChild(countElem);
+
+            let incButtonElem = document.createElement("button");
+            incButtonElem.innerText = "+";
+            incButtonElem.addEventListener("click", () => { countElem.value++; });
+            materialElem.appendChild(incButtonElem);
+
+            let decButtonElem = document.createElement("button");
+            decButtonElem.innerText = "-";
+            decButtonElem.addEventListener("click", () => { if (countElem.value > 0) countElem.value--; });
+            materialElem.appendChild(decButtonElem);
+
+            materialListElem.appendChild(materialElem);
+        });
+    }
 
     function fetchProducts(cb) {
         document.querySelector(".list").classList.add("loading");
@@ -678,6 +821,7 @@
 
                 productElem.addEventListener("click", () => {
                     productsInfo.overlayProduct = product;
+                    fillMaterialList(product);
                     document.querySelector("#product-name").value = product.name;
                     document.querySelector("#product-type").value = product.type;
                     document.querySelector("#product-code").value = product.code;
@@ -687,8 +831,8 @@
                     document.querySelector("#product-minCost").value = product.minCost;
                     document.querySelector("#overlay-caption").innerHTML = "Редактирование продукции";
                     document.querySelector("#overlayDelete").style.display = "block";
-                    document.querySelector("#overlay").querySelector(".form").classList.add("visible");
-                    document.querySelector("#overlay").classList.add("visible");
+                    overlayElem.querySelector(".form").classList.add("visible");
+                    overlayElem.classList.add("visible");
                     productsInfo.overlayId = 0;
                 });
             }
@@ -768,6 +912,22 @@
         }, 600);
     });
 
+    document.addEventListener("keydown", (e) => {
+        if (e.key == "Escape") {
+            overlayElem.classList.remove("visible");
+        }
+    });
+
+    overlayElem.addEventListener("click", (e) => {
+        if (overlayElem == e.srcElement) {
+            overlayElem.classList.remove("visible");
+        }
+    });
+
+    fetch("/api/v1/material").then(async res => {
+        productsInfo.materials = await res.json();
+    });
+
     fetch("/api/v1/products/types").then(async res => {
         let productTypes = await res.json();
 
@@ -800,6 +960,8 @@
 
     document.querySelector("#addNewButton").addEventListener("click", () => {
         productsInfo.overlayProduct = null;
+        fillMaterialList(null);
+
         document.querySelector("#product-name").value = "";
         document.querySelector("#product-type").selectedIndex = 0;
         document.querySelector("#product-code").value = "";
@@ -808,8 +970,8 @@
         document.querySelector("#product-workshop").value = "";
         document.querySelector("#product-minCost").value = "";
         document.querySelector("#overlay-caption").innerHTML = "Добавление продукции";
-        document.querySelector("#overlay").classList.add("visible");
-        document.querySelector("#overlay").querySelector(".form").classList.add("visible");
+        overlayElem.classList.add("visible");
+        overlayElem.querySelector(".form").classList.add("visible");
         document.querySelector("#overlayDelete").style.display = "none";
         productsInfo.overlayId = 1;
     });
@@ -817,17 +979,24 @@
     document.querySelector("#overlayOk").addEventListener("click", () => {
         let updatedObject = { ...productsInfo.overlayProduct };
 
+        // Сформировать список использованных материалов
+        let materials_ids = [];
+        let number_id = [];
+        let materialElems = document.querySelectorAll(".material-number");
+        materialElems.forEach(matElem => {
+            if (matElem.value > 0) {
+                let material = matElem.material;
+                materials_ids.push(material.id);
+                number_id.push(matElem.value);
+            }
+        });
+
         if (productsInfo.overlayId == 0) {
             // Обновление записи
             delete updatedObject.number;
             delete updatedObject.materials;
-            updatedObject.materials_ids = [];
-            updatedObject.number_id = [];
-
-            for (let i = 0; i < productsInfo.overlayProduct.materials.length; i++) {
-                updatedObject.materials_ids.push(productsInfo.overlayProduct.materials[i].id);
-                updatedObject.number_id.push(productsInfo.overlayProduct.number[productsInfo.overlayProduct.materials[i].id]);
-            }
+            updatedObject.materials_ids = materials_ids;
+            updatedObject.number_id = number_id;
 
             updatedObject.name = document.querySelector("#product-name").value;
             updatedObject.type = document.querySelector("#product-type").value;
@@ -836,7 +1005,7 @@
             updatedObject.numPeopleToProduce = document.querySelector("#product-numPeople").value;
             updatedObject.workshop = document.querySelector("#product-workshop").value;
             updatedObject.minCost = document.querySelector("#product-minCost").value;
-            document.querySelector("#overlay").querySelector(".form").classList.remove("visible");
+            overlayElem.querySelector(".form").classList.remove("visible");
 
             fetch(`/api/v1/product/${updatedObject.id}/`, {
                 headers: {
@@ -845,11 +1014,11 @@
                 method: "PUT",
                 body: JSON.stringify(updatedObject)
             }).then(async r => {
-                document.querySelector("#overlay").classList.remove("visible");
                 console.log(await r.text());
-                fetchProducts();
+                fetchProducts(() => overlayElem.classList.remove("visible"));
             });
         } else {
+            // Добавление новой записи
             let name = document.querySelector("#product-name").value;
             let type = document.querySelector("#product-type").value;
             let code = document.querySelector("#product-code").value;
@@ -859,7 +1028,7 @@
             let minCost = document.querySelector("#product-minCost").value;
 
             if (name && type && code && numPeopleToProduce && workshop && minCost) {
-                document.querySelector("#overlay").querySelector(".form").classList.remove("visible");
+                overlayElem.querySelector(".form").classList.remove("visible");
 
                 fetch(`/api/v1/product/`, {
                     headers: {
@@ -867,8 +1036,8 @@
                     },
                     method: "POST",
                     body: JSON.stringify({
-                        materials_ids: [],
-                        number_id: [],
+                        materials_ids,
+                        number_id,
                         name,
                         code,
                         image,
@@ -879,24 +1048,24 @@
                     })
                 }).then(async r => {
                     console.log(await r.text());
-                    fetchProducts(() => document.querySelector("#overlay").classList.remove("visible"));
+                    fetchProducts(() => overlayElem.classList.remove("visible"));
                 });
             }
         }
     });
 
     document.querySelector("#overlayCancel").addEventListener("click", () => {
-        document.querySelector("#overlay").classList.remove("visible");
+        overlayElem.classList.remove("visible");
     });
 
     document.querySelector("#overlayDelete").addEventListener("click", () => {
         if (productsInfo.overlayId == 0) {
-            document.querySelector("#overlay").querySelector(".form").classList.remove("visible");
+            overlayElem.querySelector(".form").classList.remove("visible");
 
             fetch(`/api/v1/product/${productsInfo.overlayProduct.id}`, {
                 method: "DELETE"
             }).then(async r => {
-                fetchProducts(() => document.querySelector("#overlay").classList.remove("visible"));
+                fetchProducts(() => overlayElem.classList.remove("visible"));
             });
         }
     });
