@@ -5,6 +5,7 @@
     #main-wrap {
         padding: 16px;
         overflow: auto;
+        height: 100vh;
         max-height: 100vh;
     }
 
@@ -16,7 +17,6 @@
         border-radius: 8px;
         background: rgb(255, 255, 255);
         filter: drop-shadow(0 0 4px rgba(0, 0, 0, .15));
-        overflow: hidden;
     }
 
     .list.loading {
@@ -96,6 +96,35 @@
         transition: 0.2s;
         cursor: pointer;
         opacity: 0.8;
+        position: relative;
+    }
+
+    .products .product::after {
+        content: "\f304";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 600;
+        position: absolute;
+        right: -12px;
+        top: 50%;
+        width: 48px;
+        height: 48px;
+        background: rgba(0, 0, 0, .1);
+        border-radius: 50%;
+        margin-left: 16px;
+        transform: translate(0, -50%);
+        opacity: 0;
+        transition: 0.1s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgba(0, 0, 0, .25);
+        font-size: 16px;
+        pointer-events: none;
+    }
+    
+    .products .product:hover::after {
+        transform: translate(100%, -50%);
+        opacity: 1;
     }
 
     .products .product:hover {
@@ -255,13 +284,17 @@
         background: rgba(0, 0, 0, .3);
         backdrop-filter: blur(6px);
         z-index: 9999;
-        display: none;
-    }
-
-    #overlay.visible {
         display: flex;
         justify-content: center;
         align-items: center;
+        opacity: 0;
+        transition: 0.1s;
+        pointer-events: none;
+    }
+
+    #overlay.visible {
+        pointer-events: all;
+        opacity: 1;
     }
 
     #overlay .form {
@@ -841,7 +874,7 @@
                 cb();
             }
 
-            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            document.querySelector("#main-wrap").scrollTo({ top: 0, left: 0, behavior: "smooth" });
             document.querySelector(".list").classList.remove("loading");
         });
     }
@@ -849,10 +882,10 @@
     document.querySelector(".sortTypeButton").addEventListener("click", (e) => {
         if (productsInfo.sortType == 0) {
             productsInfo.sortType = 1;
-            e.srcElement.innerHTML = `<i class="fa-solid fa-arrow-up"></i>`;
+            document.querySelector(".sortTypeButton").innerHTML = `<i class="fa-solid fa-arrow-up"></i>`;
         } else {
             productsInfo.sortType = 0;
-            e.srcElement.innerHTML = `<i class="fa-solid fa-arrow-down"></i>`;
+            document.querySelector(".sortTypeButton").innerHTML = `<i class="fa-solid fa-arrow-down"></i>`;
         }
 
         if (productsInfo.searchTimeout) {
@@ -1062,11 +1095,15 @@
         if (productsInfo.overlayId == 0) {
             overlayElem.querySelector(".form").classList.remove("visible");
 
-            fetch(`/api/v1/product/${productsInfo.overlayProduct.id}`, {
-                method: "DELETE"
-            }).then(async r => {
-                fetchProducts(() => overlayElem.classList.remove("visible"));
-            });
+            if (confirm("Вы уверены?")) {
+                fetch(`/api/v1/product/${productsInfo.overlayProduct.id}`, {
+                    method: "DELETE"
+                }).then(async r => {
+                    fetchProducts(() => overlayElem.classList.remove("visible"));
+                });
+            } else {
+                overlayElem.classList.remove("visible");
+            }
         }
     });
 
